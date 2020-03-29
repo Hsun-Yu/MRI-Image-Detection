@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\leoxz\\Anaconda3\\envs\\keras-env\\python.exe",
-    "python.dataScience.jupyterServerURI": "http://HYExLab:8888/?token=7f98bdee8653e21e0579d1407418fa280fa2deacfed475e5"
+    "python.pythonPath": "C:\\Users\\leoxz\\Anaconda3\\python.exe",
+    "python.dataScience.jupyterServerURI": "local"
 }
