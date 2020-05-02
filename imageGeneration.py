@@ -3,6 +3,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 import os
+import pandas as pd
+
+from random import seed
+from random import random
 
 def save_image(img, path):
     im = Image.fromarray(img)
@@ -45,15 +49,23 @@ def contrast(img, alpha, beta):
     return result
 
 # Main
-readPath = r'C:\Users\leoxz\Desktop\AF&TS\TS\Case 11 2441813\{}.jpg'
-savePath = r'C:\Users\leoxz\Desktop\AF&TS\TS\Case {} {}\{}'
-
-case = 20
-ID = 2441813 + 1
-os.mkdir(savePath.format(case, ID, ''))
-
-for i in range(1, 29):
-    image = cv2.imread(readPath.format(i))
-    image = flip(image)
-    save_image(image, savePath.format(case, ID, '{}.jpg'.format(i)))
-    # plt.imshow(image)
+fulldatasetpath = r'./images/'
+metadata = pd.read_csv(r'./metadatas/matadata.csv')
+savePath = r'./images/{}/Case {}/{}'
+case = 26
+seed(1)
+type = 'Af'
+for index, row in metadata.iterrows():
+    if row['category'] == type:
+        file_name = os.path.join(os.path.abspath(fulldatasetpath), 
+                            str(row['category']), 'Case ' + 
+                            str(row['number']))
+        case = case + 1
+        os.mkdir(savePath.format(type, case, ''))
+        
+        for i in range(1, 29):
+            alpha = random() * 0.75 + 0.5
+            beta = random() * 50
+            image = cv2.imread(file_name + r'/' + str(i) + r'.jpg')
+            image = contrast(image, alpha, beta)
+            save_image(image, savePath.format(type, case, '{}.jpg'.format(i)))
