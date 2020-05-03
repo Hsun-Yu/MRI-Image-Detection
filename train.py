@@ -112,7 +112,7 @@ model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='
 model.summary()
 
 # Calculate pre-training accuracy 
-score = model.evaluate(x_test, y_test, verbose=1)
+score = model.evaluate(x_test, y_test, verbose=1, batch_size=1)
 accuracy = 100 * score[1]
 
 print("Pre-training accuracy: %.4f%%" % accuracy)
@@ -124,10 +124,10 @@ print("Pre-training accuracy: %.4f%%" % accuracy)
 from keras.callbacks import ModelCheckpoint 
 from datetime import datetime 
 
-num_epochs = 100
-num_batch_size = 4
+num_epochs = 150
+num_batch_size = 2
 
-checkpointer = ModelCheckpoint(filepath='models/weights.best.basic_cnn2.hdf5', 
+checkpointer = ModelCheckpoint(filepath='models/weights.best.basic_cnn4.hdf5', 
                                verbose=1, save_best_only=True)
 start = datetime.now()
 
@@ -135,7 +135,7 @@ model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs, valida
 
 duration = datetime.now() - start
 print("Training completed in time: ", duration)
-
+model.save_weights(filepath='models/weights.best.basic_cnn5.hdf5')
 
 # %%
 
