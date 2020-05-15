@@ -1,1 +1,1 @@
-# MRI Image Processing
+# MRI Image Detection
