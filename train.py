@@ -127,7 +127,7 @@ from datetime import datetime
 num_epochs = 150
 num_batch_size = 2
 
-checkpointer = ModelCheckpoint(filepath='models/weights.best.basic_cnn4.hdf5', 
+checkpointer = ModelCheckpoint(filepath='models/weights.best.basic_cnn5.hdf5', 
                                verbose=1, save_best_only=True)
 start = datetime.now()
 
