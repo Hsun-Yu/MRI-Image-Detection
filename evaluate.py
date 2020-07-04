@@ -30,7 +30,6 @@ for index, row in metadata.iterrows():
     for i in range(1, 29):
         im = image.load_img(file_name + r'/' + str(i) + r'.jpg', target_size = (320, 320), color_mode = 'grayscale')
         im = img_to_array(im)
-        print(im.shape)
         mri.append(im)
     
     class_label = row["category"]
@@ -101,9 +100,13 @@ model.add(Dropout(0.5))
 model.add(Dense(num_labels, activation='softmax'))
 
 # Compile the model
+model.save('models/model1.h5')
 model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
-model.load_weights('models/weights.best.basic_cnn1.hdf5')
+model.load_weights('models/weights.best.basic_cnn3.hdf5')
 score = model.evaluate(X, yy, batch_size=1, verbose=1)
 accuracy = 100 * score[1]
 
 print("Accuracy: %.4f%%" % accuracy)
+
+
+# %%
