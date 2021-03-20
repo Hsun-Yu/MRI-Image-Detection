@@ -11,6 +11,12 @@ import pandas as pd
 import os
 import librosa
 
+checkpoint_weight_path = 'models/weights.best.basic_cnn14.hdf5'
+weight_path = 'models/weights.basic_cnn14.hdf5'
+model_name = 'models/model3.h5'
+num_epochs = 500
+num_batch_size = 1
+
 # %%
 fulldatasetpath = r'./images/'
 
@@ -37,7 +43,6 @@ augmentation_data_frame = dataframe[dataframe["isReal"] == 0]
 print('Number of real data:' , len(real_data_frame))
 print('Number of augmentation data:' , len(augmentation_data_frame))
 
-# %%
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import to_categorical
 
@@ -96,6 +101,7 @@ model.add(Dense(num_labels, activation='softmax'))
 # Compile the model
 model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
 model.summary()
+model.save(model_name)
 # Calculate pre-training accuracy 
 score = model.evaluate(x_test, y_test, verbose=1, batch_size=2)
 accuracy = 100 * score[1]
@@ -106,10 +112,9 @@ print("Pre-training accuracy: %.4f%%" % accuracy)
 from keras.callbacks import ModelCheckpoint 
 from datetime import datetime 
 
-num_epochs = 1000
-num_batch_size = 1
 
-checkpointer = ModelCheckpoint(filepath='models/weights.best.basic_cnn9.hdf5', 
+
+checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path, 
                                verbose=1, save_best_only=True)
 start = datetime.now()
 
@@ -117,14 +122,34 @@ model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs, valida
 
 duration = datetime.now() - start
 print("Training completed in time: ", duration)
-model.save_weights(filepath='models/weights.basic_cnn9.hdf5')
+model.save_weights(filepath=weight_path)
 
 # %%
-score = model.evaluate(x_test, y_test, batch_size=1, verbose=1)
-print("Testing Accuracy: ", score[1])
-
-# %%
+print("Finish Weight")
+model1 = model
+model1.load_weights(weight_path)
+score1 = model1.evaluate(x_test, y_test, batch_size=1, verbose=1)
+print("Testing Accuracy: ", score1[1])
 for i in range(len(x_test)):
-    print(model.predict(x_test[i:i+1])[0])
+    print(model1.predict(x_test[i:i+1])[0])
+# %%
+print("Check Point Weight")
+model2 = model
+model2.load_weights(checkpoint_weight_path)
+score2 = model2.evaluate(x_test, y_test, batch_size=1, verbose=1)
+print("Testing Accuracy: ", score2[1])
+for i in range(len(x_test)):
+    print(model2.predict(x_test[i:i+1])[0])
 
+# %%
+print("### env")
+print('Number of real data:' , len(real_data_frame))
+print('Number of augmentation data:' , len(augmentation_data_frame))
+print("epochs:", num_epochs)
+print("checkpoint_weight:", checkpoint_weight_path)
+print("finish_weight:", weight_path)
+print("model:", model_name)
+print("### Result")
+print("* Finish:", score1)
+print("* Check Point:", score2)
 # %%

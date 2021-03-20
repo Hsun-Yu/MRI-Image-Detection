@@ -103,10 +103,10 @@ model.add(Dense(num_labels, activation='softmax'))
 
 # Compile the model
 model.summary()
-model.save('models/model1.h5')
+# model.save('models/model1.h5')
 model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
-model.load_weights('models/weights.best.basic_cnn9.hdf5')
-score = model.evaluate(X, yy, batch_size=2, verbose=1)
+model.load_weights('models/weights.best.basic_cnn11.hdf5')
+score = model.evaluate(X, yy, batch_size=1, verbose=1)
 accuracy = 100 * score[1]
 
 print("Accuracy: %.4f%%" % accuracy)
