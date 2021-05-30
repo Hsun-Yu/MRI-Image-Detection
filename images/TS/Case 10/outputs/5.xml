@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>/Users/pupucarliu/Desktop/Papers/2.cancer related stroke /maching learning diagnosis /Image/小郭醫師標示的ＴＳ/Case 10 22065802/5.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name> Posterior</name>
+				<bndbox>
+					<xmin>52</xmin>
+					<ymin>99</ymin>
+					<xmax>136</xmax>
+					<ymax>160</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615907373868</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>192</width>
+		<height>192</height>
+		<depth>3</depth>
+	</size>
+</doc>

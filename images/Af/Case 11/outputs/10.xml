@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>C:\Users\leoxz\OneDrive\Project\Af&amp;TS\AF&amp;TS\Af\Case 11 3160882\10.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name>posterior</name>
+				<bndbox>
+					<xmin>70</xmin>
+					<ymin>132</ymin>
+					<xmax>182</xmax>
+					<ymax>225</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>right</name>
+				<bndbox>
+					<xmin>51</xmin>
+					<ymin>82</ymin>
+					<xmax>103</xmax>
+					<ymax>192</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>left</name>
+				<bndbox>
+					<xmin>145</xmin>
+					<ymin>90</ymin>
+					<xmax>200</xmax>
+					<ymax>191</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615303056484</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+</doc>

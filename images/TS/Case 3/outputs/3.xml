@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>C:\Users\kuo04\OneDrive\AF&amp;TS\TS\Case 3 3924900\3.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name>posterior</name>
+				<bndbox>
+					<xmin>69</xmin>
+					<ymin>152</ymin>
+					<xmax>184</xmax>
+					<ymax>206</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615467222888</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+</doc>

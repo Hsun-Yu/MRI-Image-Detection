@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>C:\Users\kuo04\OneDrive\AF&amp;TS\TS\Case 8 3127213\20.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name>right</name>
+				<bndbox>
+					<xmin>43</xmin>
+					<ymin>39</ymin>
+					<xmax>98</xmax>
+					<ymax>151</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>left</name>
+				<bndbox>
+					<xmin>98</xmin>
+					<ymin>42</ymin>
+					<xmax>153</xmax>
+					<ymax>151</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>posterior</name>
+				<bndbox>
+					<xmin>76</xmin>
+					<ymin>136</ymin>
+					<xmax>119</xmax>
+					<ymax>156</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615482216639</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>192</width>
+		<height>192</height>
+		<depth>3</depth>
+	</size>
+</doc>

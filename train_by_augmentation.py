@@ -11,8 +11,8 @@ import pandas as pd
 import os
 import librosa
 
-checkpoint_weight_path = 'models/weights.best.basic_cnn14.hdf5'
-weight_path = 'models/weights.basic_cnn14.hdf5'
+checkpoint_weight_path = 'models/weights.best.basic_cnn99.hdf5'
+weight_path = 'models/weights.basic_cnn99.hdf5'
 model_name = 'models/model3.h5'
 num_epochs = 500
 num_batch_size = 1
@@ -31,7 +31,6 @@ for index, row in metadata.iterrows():
     for i in range(1, 29):
         im = image.load_img(file_name + r'/' + str(i) + r'.jpg', target_size = (320, 320), color_mode = 'grayscale')
         im = img_to_array(im)
-        # print(im.shape)
         mri.append(im)
     data.append([mri, row["category"], row["number"], row["isReal"], row["from"]])
     
@@ -65,8 +64,8 @@ from sklearn import metrics
 
 a, num_channels, num_rows, num_columns, b = x_train.shape
 
-x_train = x_train.reshape(x_train.shape[0],num_channels, num_rows, num_columns, 1)
-x_test = x_test.reshape(x_test.shape[0],num_channels, num_rows, num_columns, 1)
+# x_train = x_train.reshape(x_train.shape[0],num_channels, num_rows, num_columns, 1)
+# x_test = x_test.reshape(x_test.shape[0],num_channels, num_rows, num_columns, 1)
 
 num_labels = y_train.shape[1]
 filter_size = 2
@@ -118,7 +117,7 @@ checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path,
                                verbose=1, save_best_only=True)
 start = datetime.now()
 
-model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs, validation_data=(x_test, y_test), callbacks=[checkpointer], verbose=1)
+model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs, validation_split=0.2, callbacks=[checkpointer], verbose=1)
 
 duration = datetime.now() - start
 print("Training completed in time: ", duration)
@@ -141,15 +140,4 @@ print("Testing Accuracy: ", score2[1])
 for i in range(len(x_test)):
     print(model2.predict(x_test[i:i+1])[0])
 
-# %%
-print("### env")
-print('Number of real data:' , len(real_data_frame))
-print('Number of augmentation data:' , len(augmentation_data_frame))
-print("epochs:", num_epochs)
-print("checkpoint_weight:", checkpoint_weight_path)
-print("finish_weight:", weight_path)
-print("model:", model_name)
-print("### Result")
-print("* Finish:", score1)
-print("* Check Point:", score2)
 # %%

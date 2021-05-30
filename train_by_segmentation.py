@@ -5,7 +5,7 @@ from keras.layers import Dense, Flatten, Conv3D, MaxPooling3D, AveragePooling3D,
 from keras.utils import to_categorical
 from keras.preprocessing import image
 from keras.preprocessing.image import img_to_array
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, TensorBoard
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as et
@@ -16,9 +16,10 @@ import librosa
 from scipy import ndimage
 from tensorflow.python.keras.models import Model
 # %%
-checkpoint_weight_path = 'models/weights.best_3cnn1.hdf5'
-weight_path = 'models/weights.basic_3cnn1.hdf5'
-model_name = 'models/model4.h5'
+checkpoint_weight_path = 'models/weights.best_3cnn4.hdf5'
+weight_path = 'models/weights.basic_3cnn4.hdf5'
+model_name = 'models/3cnn_model1.h5'
+logs_path = './logs/3cnn5/'
 num_epochs = 500
 num_batch_size = 2
 
@@ -174,7 +175,8 @@ from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 # # split the dataset 
-train, test = train_test_split(dataframe, test_size=0.2, random_state = 42)
+train, test = train_test_split(dataframe, test_size=0.2, random_state=42)
+# train, validation = train_test_split(train, test_size=0.2, random_state=42)
 le = LabelEncoder()
 
 post_train_X = np.array(train.mri_post.tolist())
@@ -187,10 +189,14 @@ right_test_X = np.array(test.mri_right.tolist())
 left_test_X = np.array(test.mri_left.tolist())
 test_y = to_categorical(le.fit_transform(test.category.tolist())) 
 
-print(post_test_X.shape)
-print(right_test_X.shape)
-print(right_test_X.shape)
-print(test_y.shape)
+# post_validation_X = np.array(validation.mri_post.tolist())
+# right_validation_X = np.array(validation.mri_right.tolist())
+# left_validation_X = np.array(validation.mri_left.tolist())
+# validation_y = to_categorical(le.fit_transform(validation.category.tolist())) 
+
+# print(post_test_X.shape)
+# print(right_test_X.shape)
+# print(test_y.shape)
 # %%
 
 # a, num_channels, num_rows, num_columns, b = x_train.shape
@@ -239,31 +245,55 @@ left_model = get_model(width=64)
 
 x  = concatenate([post_model.output, right_model.output, left_model.output])
 x = Dense(units=512, activation='relu')(x)
-x = Dropout(0.3)(x)
+x = Dropout(0.2)(x)
 x = Dense(units=1024, activation='relu')(x)
-x = Dropout(0.3)(x)
+x = Dropout(0.2)(x)
+x = Dense(units=1024, activation='relu')(x)
+x = Dropout(0.2)(x)
+x = Dense(units=1024, activation='relu')(x)
+x = Dropout(0.2)(x)
 x = Dense(units=512, activation='relu')(x)
-x = Dropout(0.3)(x)
+x = Dropout(0.2)(x)
 x = Dense(num_labels, activation='softmax')(x)
 model = keras.Model([post_model.input, right_model.input, left_model.input], x)
 
 # Compile the model
 model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
 model.summary()
+model.save(model_name)
 score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
 
+
+# %%
 checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path, 
                                verbose=1, save_best_only=True)
-# %%
+# monitor = RemoteMonitor()
+tbCallBack = TensorBoard(log_dir=logs_path,
+                 histogram_freq=0,
+                 write_graph=True, 
+                 write_grads=True, 
+                 write_images=True,
+                 embeddings_freq=0, 
+                 embeddings_layer_names=None, 
+                 embeddings_metadata=None)
 # validation_data=([post_test_X, right_test_X, left_test_X], test_y)
-history = model.fit([post_train_X, right_train_X, left_train_X], train_y, batch_size=num_batch_size, epochs=num_epochs, validation_split=0.2, callbacks=[checkpointer, history], verbose=1)
+history = model.fit([post_train_X, right_train_X, left_train_X], train_y, batch_size=num_batch_size, epochs=num_epochs, validation_split=0.2, callbacks=[checkpointer, tbCallBack], verbose=1)
 model.save_weights(filepath=weight_path)
 score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
 # %%
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('Model accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Test'], loc='upper left')
-plt.show()
+print("Finish Weight")
+model1 = model
+model1.load_weights(weight_path)
+score1 = model1.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
+print("Testing Accuracy: ", score1[1])
+for i in range(len(post_test_X)):
+    print(model1.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
+# %%
+print("Check Point Weight")
+model2 = model
+model2.load_weights(checkpoint_weight_path)
+score2 = model2.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
+print("Testing Accuracy: ", score2[1])
+for i in range(len(post_test_X)):
+    print(model2.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
+# %%

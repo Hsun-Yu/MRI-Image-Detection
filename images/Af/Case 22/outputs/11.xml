@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>/Users/pupucarliu/Desktop/Papers/2.cancer related stroke /maching learning diagnosis /Image/小郭醫師標示的 Af/Case 22 20979663/11.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name> Posterior </name>
+				<bndbox>
+					<xmin>73</xmin>
+					<ymin>119</ymin>
+					<xmax>194</xmax>
+					<ymax>214</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>Left</name>
+				<bndbox>
+					<xmin>123</xmin>
+					<ymin>36</ymin>
+					<xmax>207</xmax>
+					<ymax>187</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name> Right</name>
+				<bndbox>
+					<xmin>45</xmin>
+					<ymin>30</ymin>
+					<xmax>122</xmax>
+					<ymax>189</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615905955977</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+</doc>

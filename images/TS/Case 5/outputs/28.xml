@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<doc>
+	<path>C:\Users\kuo04\OneDrive\AF&amp;TS\TS\Case 5 21158999\28.jpg</path>
+	<outputs>
+		<object>
+			<item>
+				<name>right</name>
+				<bndbox>
+					<xmin>126</xmin>
+					<ymin>134</ymin>
+					<xmax>156</xmax>
+					<ymax>223</ymax>
+				</bndbox>
+			</item>
+			<item>
+				<name>left</name>
+				<bndbox>
+					<xmin>159</xmin>
+					<ymin>134</ymin>
+					<xmax>189</xmax>
+					<ymax>225</ymax>
+				</bndbox>
+			</item>
+		</object>
+	</outputs>
+	<time_labeled>1615477314509</time_labeled>
+	<labeled>true</labeled>
+	<size>
+		<width>320</width>
+		<height>320</height>
+		<depth>3</depth>
+	</size>
+</doc>
