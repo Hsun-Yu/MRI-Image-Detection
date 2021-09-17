@@ -16,12 +16,12 @@ import librosa
 from scipy import ndimage
 from tensorflow.python.keras.models import Model
 # %%
-checkpoint_weight_path = 'models/weights.best_3cnn4.hdf5'
-weight_path = 'models/weights.basic_3cnn4.hdf5'
+checkpoint_weight_path = 'models/weights.best_3cnn6.hdf5'
+weight_path = 'models/weights.basic_3cnn6.hdf5'
 model_name = 'models/3cnn_model1.h5'
 logs_path = './logs/3cnn5/'
-num_epochs = 500
-num_batch_size = 2
+num_epochs = 10
+num_batch_size = 3
 
 def normalize(volume):
     """Normalize the volume"""
@@ -173,7 +173,6 @@ print('Finished data extraction from ', len(dataframe), ' files')
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-
 # # split the dataset 
 train, test = train_test_split(dataframe, test_size=0.2, random_state=42)
 # train, validation = train_test_split(train, test_size=0.2, random_state=42)
@@ -187,8 +186,17 @@ train_y = to_categorical(le.fit_transform(train.category.tolist()))
 post_test_X = np.array(test.mri_post.tolist())
 right_test_X = np.array(test.mri_right.tolist())
 left_test_X = np.array(test.mri_left.tolist())
-test_y = to_categorical(le.fit_transform(test.category.tolist())) 
+test_y = to_categorical(le.fit_transform(test.category.tolist()))
 
+# print(train.category.tolist())
+# print(train_y)
+train_count = np.count_nonzero(train_y, axis=0)
+test_count = np.count_nonzero(test_y, axis=0)
+print("Train count[Af, TS]:", train_count)
+print("Test count[Af, TS]:", test_count)
+
+# %%
+# print(test_y)
 # post_validation_X = np.array(validation.mri_post.tolist())
 # right_validation_X = np.array(validation.mri_right.tolist())
 # left_validation_X = np.array(validation.mri_left.tolist())
@@ -197,7 +205,6 @@ test_y = to_categorical(le.fit_transform(test.category.tolist()))
 # print(post_test_X.shape)
 # print(right_test_X.shape)
 # print(test_y.shape)
-# %%
 
 # a, num_channels, num_rows, num_columns, b = x_train.shape
 
@@ -210,7 +217,7 @@ filter1 = 5
 filter2 = 5
 filter3 = 5
 
-def get_model(width=128, height=128, depth=64):
+def get_mini_model(width=128, height=128, depth=64):
     """Build a 3D convolutional neural network model."""
     inputs = keras.Input((depth, height, width, 1))
     x = Conv3D(filters=64, kernel_size=3, activation="relu")(inputs)
@@ -239,61 +246,169 @@ def get_model(width=128, height=128, depth=64):
     model = keras.Model(inputs, x)
     return model
 
-post_model = get_model()
-right_model = get_model(width=64)
-left_model = get_model(width=64)
+def get_model():
+    post_model = get_mini_model()
+    right_model = get_mini_model(width=64)
+    left_model = get_mini_model(width=64)
 
-x  = concatenate([post_model.output, right_model.output, left_model.output])
-x = Dense(units=512, activation='relu')(x)
-x = Dropout(0.2)(x)
-x = Dense(units=1024, activation='relu')(x)
-x = Dropout(0.2)(x)
-x = Dense(units=1024, activation='relu')(x)
-x = Dropout(0.2)(x)
-x = Dense(units=1024, activation='relu')(x)
-x = Dropout(0.2)(x)
-x = Dense(units=512, activation='relu')(x)
-x = Dropout(0.2)(x)
-x = Dense(num_labels, activation='softmax')(x)
-model = keras.Model([post_model.input, right_model.input, left_model.input], x)
+    x  = concatenate([post_model.output, right_model.output, left_model.output])
+    x = Dense(units=512, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Dense(units=1024, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Dense(units=1024, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Dense(units=1024, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Dense(units=512, activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Dense(num_labels, activation='softmax')(x)
+    model = keras.Model([post_model.input, right_model.input, left_model.input], x)
+    opt = keras.optimizers.Adam(learning_rate=0.00005)
+    model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=opt)
+    return model
+
+
+# %%
+# Normal
+# model = keras.Model([post_model.input, right_model.input, left_model.input], x)
 
 # Compile the model
-model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
-model.summary()
-model.save(model_name)
-score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
+# model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
+# model.summary()
+# model.save(model_name)
+# score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
 
+# checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path, 
+#                                verbose=1, save_best_only=True)
+# # monitor = RemoteMonitor()
+# tbCallBack = TensorBoard(log_dir=logs_path,
+#                  histogram_freq=0,
+#                  write_graph=True, 
+#                  write_grads=True, 
+#                  write_images=True,
+#                  embeddings_freq=0, 
+#                  embeddings_layer_names=None, 
+#                  embeddings_metadata=None)
+# # validation_data=([post_test_X, right_test_X, left_test_X], test_y)
+# history = model.fit([post_train_X, right_train_X, left_train_X], train_y, batch_size=num_batch_size, epochs=num_epochs, validation_split=0.2, callbacks=[checkpointer, tbCallBack], verbose=1)
+# model.save_weights(filepath=weight_path)
+# score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
+
+# 5-Fold
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=5)
+
+print(kf)
+history_list = []
+models = []
+for train_index, test_index in kf.split(train_y):
+    model = None
+    model = get_model()
+    checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path, 
+                                verbose=1, save_best_only=True)
+    history = model.fit([post_train_X[train_index], right_train_X[train_index], left_train_X[train_index]], 
+                        train_y[train_index], 
+                        batch_size=num_batch_size, 
+                        epochs=num_epochs, 
+                        validation_data=([post_train_X[test_index], right_train_X[test_index], left_train_X[test_index]], train_y[test_index]), verbose=1)
+    history_list.append(history)
+    models.append(model)
+    model.save_weights(filepath=weight_path)
+    train_count = np.count_nonzero(train_y[train_index], axis=0)
+    test_count = np.count_nonzero(train_y[test_index], axis=0)
+    print("Train count[Af, TS]:", train_count)
+    print("Validation count[Af, TS]:", test_count)
+    score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
 
 # %%
-checkpointer = ModelCheckpoint(filepath=checkpoint_weight_path, 
-                               verbose=1, save_best_only=True)
-# monitor = RemoteMonitor()
-tbCallBack = TensorBoard(log_dir=logs_path,
-                 histogram_freq=0,
-                 write_graph=True, 
-                 write_grads=True, 
-                 write_images=True,
-                 embeddings_freq=0, 
-                 embeddings_layer_names=None, 
-                 embeddings_metadata=None)
-# validation_data=([post_test_X, right_test_X, left_test_X], test_y)
-history = model.fit([post_train_X, right_train_X, left_train_X], train_y, batch_size=num_batch_size, epochs=num_epochs, validation_split=0.2, callbacks=[checkpointer, tbCallBack], verbose=1)
-model.save_weights(filepath=weight_path)
-score = model.evaluate([post_test_X, right_test_X, left_test_X], test_y, verbose=1, batch_size=num_batch_size)
+print(history_list)
+
+# # %%
+# print("Finish Weight")
+# model1 = model
+# model1.load_weights(weight_path)
+# score1 = model1.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
+# print("Testing Accuracy: ", score1[1])
+# for i in range(len(post_test_X)):
+#     print(model1.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
 # %%
-print("Finish Weight")
-model1 = model
-model1.load_weights(weight_path)
-score1 = model1.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
-print("Testing Accuracy: ", score1[1])
-for i in range(len(post_test_X)):
-    print(model1.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
+# # print("Check Point Weight")
+# model2 = model
+# model2.load_weights(checkpoint_weight_path)
+# score2 = model2.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
+# print("Testing Accuracy: ", score2[1])
+# test_count = np.count_nonzero(test_y, axis=0)
+# print("Test count[Af, TS]:", test_count)
+# print("")
+# for i in range(len(post_test_X)):
+#     print(model2.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
 # %%
-print("Check Point Weight")
-model2 = model
-model2.load_weights(checkpoint_weight_path)
-score2 = model2.evaluate([post_test_X, right_test_X, left_test_X], test_y, batch_size=1, verbose=1)
-print("Testing Accuracy: ", score2[1])
-for i in range(len(post_test_X)):
-    print(model2.predict([post_test_X[i:i+1], right_test_X[i:i+1], left_test_X[i:i+1]])[0], test_y[i:i+1])
+# TO PLOT ROC CURVE
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
+
+def to_binary(y_list):
+    result = []
+    for y in y_list:
+        result.append(y[0])
+        # if y[0] >= y[1]:
+        #     result.append(True)
+        # else:
+        #     result.append(False)
+    return result
+
+y_pred_keras = model.predict([post_test_X, right_test_X, left_test_X], verbose=1, batch_size=num_batch_size)
+y_test = to_binary(test_y)
+y_pred = to_binary(y_pred_keras)
+# y_test = test_y
+# y_pred = y_pred_keras
+print(y_test, y_pred)
+fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_true=y_test, y_score=y_pred)
+auc_keras = auc(fpr_keras, tpr_keras)
+
+plt.figure(1)
+plt.plot([0, 1], [0, 1], 'k--')
+plt.plot(fpr_keras, tpr_keras, label='Keras (area = {:.3f})'.format(auc_keras))
+plt.xlabel('False positive rate')
+plt.ylabel('True positive rate')
+plt.title('ROC curve')
+plt.legend(loc='best')
+plt.show()
+
+# %%
+print(thresholds_keras)
+lose_average = np.array(history_list[0].history["loss"]) / len(history_list)
+val_loss_average = np.array(history_list[0].history["val_loss"]) / len(history_list)
+acc_average = np.array(history_list[0].history["accuracy"]) / len(history_list)
+val_acc_average = np.array(history_list[0].history["val_accuracy"]) / len(history_list)
+
+for i in range(1, len(history_list)):
+    lose_average += np.array(history_list[0].history["loss"]) / len(history_list)
+    val_loss_average += np.array(history_list[0].history["val_loss"]) / len(history_list)
+    acc_average += np.array(history_list[0].history["accuracy"]) / len(history_list)
+    val_acc_average += np.array(history_list[0].history["val_accuracy"]) / len(history_list)
+
+plt.plot(lose_average[:])
+plt.plot(val_loss_average[:])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'val'], loc='upper left')
+plt.show()
+
+plt.plot(acc_average[:])
+plt.plot(val_acc_average[:])
+plt.title('model acc')
+plt.ylabel('acc')
+plt.xlabel('epoch')
+plt.legend(['train', 'val'], loc='upper left')
+plt.show()
+
+# %%
+print(history_list[0].history["val_loss"][0])
+print(history_list[1].history["val_loss"][0])
+print(history_list[2].history["val_loss"][0])
+print(history_list[3].history["val_loss"][0])
+print(history_list[4].history["val_loss"][0])
 # %%
